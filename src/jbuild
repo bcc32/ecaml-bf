@@ -1,0 +1,16 @@
+(jbuild_version 1)
+
+(executables
+ ((names     (plugin))
+  (libraries (ecaml))))
+
+(rule (copy plugin.exe ecaml-bf.so))
+
+(alias
+ ((name plugin)
+  (deps (ecaml-bf.so))))
+
+(alias
+ ((name runtest)
+  (deps ((alias plugin)))
+  (action (run emacs -Q -L . --batch --eval "(require 'ecaml-bf)"))))

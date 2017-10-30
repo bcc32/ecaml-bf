@@ -1,0 +1,16 @@
+opam-version: "1.2"
+maintainer: "Aaron L. Zeng <me@bcc32.com>"
+authors: "Aaron L. Zeng <me@bcc32.com>"
+homepage: "https://github.com/bcc32/ecaml-bf"
+bug-reports: "https://github.com/bcc32/ecaml-bf/issues"
+license: "MIT"
+tags: ["ecaml" "emacs"]
+dev-repo: "https://github.com/bcc32/ecaml-bf"
+build: [
+  ["jbuilder" "subst"] {pinned}
+  ["jbuilder" "build" "-p" name "-j" jobs]
+]
+build-test: ["jbuilder" "runtest" "-p" name "-j" jobs]
+depends: [
+  "jbuilder" {build}
+]
