@@ -97,7 +97,7 @@ module Program = struct
         Hashtbl.add_exn jump_table ~key:!current_pos ~data:hd;
         Hashtbl.add_exn jump_table ~key:hd ~data:!current_pos;
         open_brackets := tl;
-        add_command Command.Loop_begin
+        add_command Command.Loop_end
     in
     Input.iter source_code ~f:(fun char ->
       match Command.of_char char with
