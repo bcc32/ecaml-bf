@@ -132,36 +132,38 @@ module Program = struct
 
     (* pc  :: program counter
        pos :: data pointer *)
-    let rec loop pc pos =
+    let rec loop ~pc ~pos =
       match t.commands.( pc ) with
-      | Left -> loop (pc + 1) (pos - 1)
-      | Right -> loop (pc + 1) (pos + 1)
-      | Decrement -> set pos (get pos - 1)
-      | Increment -> set pos (get pos + 1)
+      | Left  -> loop ~pc:(pc + 1) ~pos:(pos - 1)
+      | Right -> loop ~pc:(pc + 1) ~pos:(pos + 1)
+
+      (* parenthesized for clarity *)
+      | Decrement -> set pos ((get pos) - 1); loop ~pc:(pc + 1) ~pos
+      | Increment -> set pos ((get pos) + 1); loop ~pc:(pc + 1) ~pos
 
       | Input ->
         (match input () with
          | None   -> ()         (* do nothing if we run [,] at EOF *)
          | Some c -> set pos (Char.to_int c));
-        loop (pc + 1) pos
+        loop ~pc:(pc + 1) ~pos
 
       | Output ->
         output (Char.of_int_exn (get pos));
-        loop (pc + 1) pos
+        loop ~pc:(pc + 1) ~pos
 
       | Loop_begin ->
         if get pos = 0
-        then (loop (jump pc + 1) pos)
-        else (loop (pc + 1) pos)
+        then (loop ~pc:(jump pc) ~pos)
+        else (loop ~pc:(pc + 1)  ~pos)
 
       | Loop_end ->
         if get pos <> 0
-        then (loop (jump pc + 1) pos)
-        else (loop (pc + 1) pos)
+        then (loop ~pc:(jump pc) ~pos)
+        else (loop ~pc:(pc + 1)  ~pos)
 
       | exception _ -> ()       (* reached end of commands, so we terminate *)
     in
-    loop 0 0
+    loop ~pc:0 ~pos:0
   ;;
 
   let run' ~program ~input =
