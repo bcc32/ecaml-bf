@@ -32,7 +32,9 @@ module Output = struct
   let of_chan chan = Pervasives.output_char chan
 end
 
-module Memory = Bigstring
+module Memory = struct
+  type t = Bigstring.t
+end
 
 module Program = struct
   module Command = struct
@@ -64,7 +66,12 @@ module Program = struct
     ; jump_table : int Int.Table.t } (* maps matching brackets' positions to
                                         each others' *)
 
-  let heap_size = 1_000_000
+  let create_memory () =
+    let memory_size = 1_000_000 in
+    let memory = Bigstring.create memory_size in
+    Bigarray.Array1.fill memory '\000';
+    memory
+  ;;
 
   let extra_left = invalid_argf "unmatched left bracket at command index %d"
   let extra_right = invalid_argf "unmatched right bracket at command index %d"
@@ -117,11 +124,11 @@ module Program = struct
 
   let run t ~memory ~input ~output =
     (* get/set bytes in memory; bytes are unsigned, wrap around on overflow *)
-    let get pos   = Memory.get_uint8 memory ~pos           in
-    let set pos x = Memory.set_uint8 memory ~pos (x % 256) in
+    let get pos   = Bigstring.get_uint8 memory ~pos           in
+    let set pos x = Bigstring.set_uint8 memory ~pos (x % 256) in
 
     (* we can actually always jump one past the matching bracket *)
-    let jump pc   = Hashtbl.find_exn t.jump_table pc + 1   in
+    let jump pc = 1 + Hashtbl.find_exn t.jump_table pc in
 
     (* pc  :: program counter
        pos :: data pointer *)
@@ -160,7 +167,7 @@ module Program = struct
   let run' ~program ~input =
     let t = parse (Input.of_string program) in
     let buffer = Buffer.create 16 in
-    let memory = Memory.create heap_size in
+    let memory = create_memory () in
     let input = Input.of_string input in
     let output = Output.of_buffer buffer in
     run t ~memory ~input ~output;
