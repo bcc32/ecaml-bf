@@ -1,0 +1,6 @@
+(jbuild_version 1)
+
+(library
+ ((name      bf_lib)
+  (synopsis  "An interpreter library for brainfuck.")
+  (libraries (core_kernel))))
