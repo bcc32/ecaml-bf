@@ -34,6 +34,12 @@ end
 
 module Memory = struct
   type t = Bigstring.t
+
+  let create_fresh n =
+    let memory = Bigstring.create n in
+    Bigarray.Array1.fill memory '\000';
+    memory
+  ;;
 end
 
 module Program = struct
@@ -65,13 +71,6 @@ module Program = struct
     { commands   : Command.t array   (* just the sequence of commands *)
     ; jump_table : int Int.Table.t } (* maps matching brackets' positions to
                                         each others' *)
-
-  let create_memory () =
-    let memory_size = 1_000_000 in
-    let memory = Bigstring.create memory_size in
-    Bigarray.Array1.fill memory '\000';
-    memory
-  ;;
 
   let extra_left = invalid_argf "unmatched left bracket at command index %d"
   let extra_right = invalid_argf "unmatched right bracket at command index %d"
@@ -169,7 +168,7 @@ module Program = struct
   let run' ~program ~input =
     let t = parse (Input.of_string program) in
     let buffer = Buffer.create 16 in
-    let memory = create_memory () in
+    let memory = Memory.create_fresh 1_000_000 in
     let input = Input.of_string input in
     let output = Output.of_buffer buffer in
     run t ~memory ~input ~output;

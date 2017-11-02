@@ -21,6 +21,9 @@ end
 module Memory : sig
   (** A big byte array. *)
   type t = Bigstring.t
+
+  (** [create_fresh n] creates a zero-initialized memory of size [n] bytes. *)
+  val create_fresh : int -> t
 end
 
 module Program : sig
