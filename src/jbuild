@@ -2,7 +2,8 @@
 
 (executables
  ((names     (plugin))
-  (libraries (ecaml))))
+  (libraries (bf_lib ecaml))
+  (preprocess (pps (ppx_here)))))
 
 (rule (copy plugin.exe ecaml-bf.so))
 
