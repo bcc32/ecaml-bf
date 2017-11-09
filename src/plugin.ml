@@ -40,10 +40,8 @@ let () =
 ;;
 
 let () =
-  let keys =
-    Symbol.funcall1 (Symbol.intern "kbd") (Value.of_utf8_bytes "C-x C-j")
-  in
-  Symbol.funcall2_i (Symbol.intern "global-set-key")
-    keys
-    (Value.intern "bf-eval-buffer")
+  let keys = Key_sequence.create_exn "C-x C-j" in
+  let keymap = Keymap.global () in
+  Keymap.define_key keymap keys
+    (Command (Command.of_value_exn (Value.intern "bf-eval-buffer")))
 ;;
