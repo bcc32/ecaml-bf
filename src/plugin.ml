@@ -40,9 +40,18 @@ let () =
 ;;
 
 let () =
-  let keys = Key_sequence.create_exn "C-x C-j" in
-  let keymap = Keymap.global () in
-  Keymap.define_key keymap keys
+  (* define [bf-mode] as a major mode *)
+  let mode =
+    Major_mode.define_derived_mode ~parent:Major_mode.fundamental
+      [%here]
+      ~change_command:(Symbol.intern "bf-mode")
+      ~docstring:"Major mode for interacting with brainfuck code."
+      ~initialize:ignore
+      ~mode_line:"brainfuck"
+  in
+  (* bind [C-x C-e] to [bf-eval-buffer] *)
+  let keymap = Major_mode.keymap mode in
+  Keymap.define_key keymap (Key_sequence.create_exn "C-x C-e")
     (Command (Command.of_value_exn (Value.intern "bf-eval-buffer")))
 ;;
 
