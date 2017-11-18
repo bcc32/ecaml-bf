@@ -45,3 +45,5 @@ let () =
   Keymap.define_key keymap keys
     (Command (Command.of_value_exn (Value.intern "bf-eval-buffer")))
 ;;
+
+let () = provide (Symbol.intern "ecaml-bf")
