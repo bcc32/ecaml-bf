@@ -1,17 +1,15 @@
 (jbuild_version 1)
 
 (executables
- ((names     (plugin))
+ ((names (plugin))
   (libraries (bf_lib ecaml))
-  (preprocess (pps (ppx_here)))))
+  (preprocess (pps (ppx_here ppx_let)))
+  (modes (shared_object))))
 
-(rule (copy plugin.exe ecaml-bf.so))
-
-(alias
- ((name plugin)
-  (deps (ecaml-bf.so))))
+(rule
+ (copy plugin.so ecaml-bf.so))
 
 (alias
  ((name runtest)
-  (deps ((alias plugin)))
+  (deps (ecaml-bf.so))
   (action (run emacs -Q -L . --batch --eval "(require 'ecaml-bf)"))))

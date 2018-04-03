@@ -1,42 +1,30 @@
 open Ecaml
 
-let eval_program program input =
-  let program = Value.to_utf8_bytes_exn program in
-  let input   = Value.to_utf8_bytes_exn input   in
-  Bf_lib.Program.run' ~program ~input
-  |> Value.of_utf8_bytes
-;;
-
 let () =
-  defun [%here] (Symbol.intern "bf-eval")
+  defun [%here] Value.Type.string (Symbol.intern "bf-eval")
     ~docstring:"evaluate [program], a brainfuck program, given [input]"
-    ~args:[ Symbol.intern "program"
-          ; Symbol.intern "input" ]
-    (function
-      | [| program; input |] -> eval_program program input
-      | _ -> invalid_arg "wrong arity")
-;;
-
-let eval_current_buffer input =
-  let program =
-    Current_buffer.contents ()
-    |> Text.to_utf8_bytes
-  in
-  let input = Value.to_utf8_bytes_exn input in
-  Bf_lib.Program.run' ~program ~input
+    begin
+      let open Defun.Let_syntax in
+      let%map_open program = required (Symbol.intern "program") Value.Type.string
+      and          input   = required (Symbol.intern "input")   Value.Type.string in
+      Bf_lib.Program.run' ~program ~input
+    end
 ;;
 
 let () =
-  defun [%here] (Symbol.intern "bf-eval-buffer")
+  defun [%here] Value.Type.unit (Symbol.intern "bf-eval-buffer")
     ~docstring:"evaluate the current buffer as brainfuck code"
     ~interactive:"sInput: "
-    ~args:[ Symbol.intern "input" ]
-    (function
-      | [| input |] ->
-        let output = eval_current_buffer input in
-        messagef "Output: %s" output;
-        Value.nil
-      | _ -> invalid_arg "wrong arity")
+    begin
+      let open Defun.Let_syntax in
+      let%map_open input = required (Symbol.intern "input") Value.Type.string in
+      let program =
+        Current_buffer.contents ()
+        |> Text.to_utf8_bytes
+      in
+      Bf_lib.Program.run' ~program ~input
+      |> messagef "Output: %s"
+    end
 ;;
 
 let mode_name = Symbol.intern "bf-mode"
